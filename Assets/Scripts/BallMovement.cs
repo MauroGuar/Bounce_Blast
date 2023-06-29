@@ -1,20 +1,22 @@
 using System;
+using System.Numerics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
+using Quaternion = UnityEngine.Quaternion;
+using Vector2 = UnityEngine.Vector2;
 
 public class BallMovement2 : MonoBehaviour
 {
     [SerializeField] private Rigidbody2D myRigidBody2D;
     private Camera _mainCamera;
     [SerializeField] private RectTransform rectTransformPauseButton;
-    [SerializeField] private Text debugText;
     private bool _canMove;
     private bool _isTouching;
     private bool _touchingPress;
     private bool _newTouch = true;
     private float _xButton;
     private float _yButton;
+    public bool canDie = false;
 
     private void Start()
     {
@@ -32,8 +34,6 @@ public class BallMovement2 : MonoBehaviour
         {
             Die();
         }
-
-        // Debug.Log(isTouching + " " + canMove);
     }
 
     private void FixedUpdate()
@@ -55,7 +55,6 @@ public class BallMovement2 : MonoBehaviour
 
     private void CheckInputState()
     {
-
         if (Input.touchCount == 1)
         {
             var touchRealPos = _mainCamera.ScreenToWorldPoint(Input.GetTouch(0).position);
@@ -84,6 +83,14 @@ public class BallMovement2 : MonoBehaviour
         }
     }
 
+    private void OnCollisionEnter2D(Collision2D col)
+    {
+        if (col.gameObject.tag.Equals("Obstacle"))
+        {
+            Die();
+        }
+    }
+
     private void OnCollisionStay2D(Collision2D col)
     {
         if (!col.gameObject.tag.Equals("Support") && !col.gameObject.tag.Equals("Middle")) return;
@@ -94,6 +101,14 @@ public class BallMovement2 : MonoBehaviour
     private void OnCollisionExit2D(Collision2D col)
     {
         _canMove = false;
+    }
+
+    private void OnTriggerEnter2D(Collider2D col)
+    {
+        /*if (col.gameObject.tag.Equals("Middle") || col.gameObject.tag.Equals("Floor"))
+        {
+            Die();
+        }*/
     }
 
     private void OnTriggerStay2D(Collider2D col)
@@ -111,7 +126,16 @@ public class BallMovement2 : MonoBehaviour
                 case "PressJumpInvert":
                     _touchingPress = true;
                     ChangeGravity(myRigidBody2D.gravityScale * -1);
-                    var force = new Vector2(0, -1300 * Mathf.Pow(myRigidBody2D.gravityScale, 0) * Time.deltaTime);
+                    Vector2 force;
+                    if (myRigidBody2D.gravityScale > 0)
+                    {
+                        force = new Vector2(0, -1300 * Mathf.Pow(myRigidBody2D.gravityScale, 0) * Time.deltaTime);
+                    }
+                    else
+                    {
+                        force = new Vector2(0, 1300 * Mathf.Pow(myRigidBody2D.gravityScale, 0) * Time.deltaTime);
+                    }
+
                     myRigidBody2D.AddForce(force, ForceMode2D.Impulse);
                     break;
                 case "PressJump":
@@ -129,16 +153,19 @@ public class BallMovement2 : MonoBehaviour
         _touchingPress = false;
     }
 
-    private void ChechDieStatus()
+    private void CheckDieStatus()
     {
         // TODO complete function that checks whether the player should die
     }
 
-    public static void Die()
+    public void Die()
     {
-        var currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
-        SceneManager.LoadScene(currentSceneIndex);
-        BallScript.resetRotation();
+        if (canDie)
+        {
+            var currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+            SceneManager.LoadScene(currentSceneIndex);
+            BallScript.resetRotation();
+        }
     }
 
     /*public void AvoidMovement()

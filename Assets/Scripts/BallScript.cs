@@ -5,7 +5,7 @@ using UnityEngine;
 public class BallScript : MonoBehaviour
 {
     [SerializeField] SpriteRenderer spriteRenderer;
-    [SerializeField] static float rotationSpeed = -13;
+    [SerializeField] static float rotationSpeed = -10;
 
     void Start()
     {
