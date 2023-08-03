@@ -1,15 +1,24 @@
 using System.Globalization;
+using System.Net.Mime;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class Logic : MonoBehaviour
 {
     [SerializeField] private Text scoreText;
+    [SerializeField] private TextMeshProUGUI recordTextMesh;
     private float _score = 0.0f;
     private float _recordScore = 0.0f;
+    public bool clearRecordScoreOnStart;
 
     private void Start()
     {
+        if (clearRecordScoreOnStart)
+        {
+            ClearRecord();
+        }
+
         UpdateRecordScore();
         ResetScore();
     }
@@ -17,6 +26,7 @@ public class Logic : MonoBehaviour
     private void Update()
     {
         AddScore();
+        recordTextMesh.text = "Record: " + _recordScore.ToString(CultureInfo.InvariantCulture);
     }
 
     private void AddScore()
@@ -37,8 +47,15 @@ public class Logic : MonoBehaviour
         if (_score > _recordScore)
         {
             _recordScore = _score;
-            PlayerPrefs.SetFloat("RecordScore",_recordScore);
+            PlayerPrefs.SetFloat("RecordScore", _recordScore);
             PlayerPrefs.Save();
         }
+    }
+
+    private void ClearRecord()
+    {
+        _recordScore = 0.0f;
+        PlayerPrefs.SetFloat("RecordScore", _recordScore);
+        PlayerPrefs.Save();
     }
 }
