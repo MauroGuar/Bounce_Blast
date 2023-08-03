@@ -18,6 +18,8 @@ public class BallMovement2 : MonoBehaviour
     private float _yButton;
     public bool canDie = false;
 
+    [SerializeField] private Logic logic;
+
     private void Start()
     {
         _mainCamera = Camera.main;
@@ -162,6 +164,7 @@ public class BallMovement2 : MonoBehaviour
     {
         if (canDie)
         {
+            logic.UpdateRecordScore();
             var currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
             SceneManager.LoadScene(currentSceneIndex);
             BallScript.resetRotation();

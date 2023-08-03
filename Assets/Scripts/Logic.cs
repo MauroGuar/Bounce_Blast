@@ -6,11 +6,14 @@ public class Logic : MonoBehaviour
 {
     [SerializeField] private Text scoreText;
     private float _score = 0.0f;
+    private float _recordScore = 0.0f;
 
     private void Start()
     {
-       ResetScore();
+        UpdateRecordScore();
+        ResetScore();
     }
+
     private void Update()
     {
         AddScore();
@@ -19,13 +22,23 @@ public class Logic : MonoBehaviour
     private void AddScore()
     {
         _score += Time.deltaTime;
-        _score = Mathf.Round(_score * 100) / 100;
-        scoreText.text = _score.ToString();
+        scoreText.text = _score.ToString("F1").Replace(",", ".");
     }
 
     [ContextMenu("Reset Score")]
     public void ResetScore()
     {
         scoreText.text = "0";
+    }
+
+    public void UpdateRecordScore()
+    {
+        _recordScore = PlayerPrefs.GetFloat("RecordScore", 0.0f);
+        if (_score > _recordScore)
+        {
+            _recordScore = _score;
+            PlayerPrefs.SetFloat("RecordScore",_recordScore);
+            PlayerPrefs.Save();
+        }
     }
 }
